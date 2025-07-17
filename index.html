@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlertMeal - Smart Meal Reminder App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1 class="app-title">AlertMeal</h1>
+            <p class="app-subtitle">Smart meal reminder & tracking system</p>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="app-nav">
+            <button class="tab-btn active" data-tab="dashboard">
+                <span class="tab-icon">🏠</span>
+                Dashboard
+            </button>
+            <button class="tab-btn" data-tab="trends">
+                <span class="tab-icon">📊</span>
+                Trends
+            </button>
+            <button class="tab-btn" data-tab="settings">
+                <span class="tab-icon">⚙️</span>
+                Settings
+            </button>
+        </nav>
+
+        <!-- Alerts Container -->
+        <div id="alert-container" class="alert-container hidden">
+            <div class="alert-header">
+                <h3 class="alert-title">
+                    <span class="alert-icon">🔔</span>
+                    Active Alerts
+                </h3>
+                <button id="dismiss-alerts" class="alert-dismiss-all">×</button>
+            </div>
+            <div id="alerts-list" class="alerts-list"></div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content active">
+            <!-- Risk Indicator -->
+            <div id="risk-indicator" class="risk-indicator low">
+                <div class="risk-content">
+                    <div class="risk-info">
+                        <h3 id="risk-title" class="risk-title">Skip Risk Assessment</h3>
+                        <p id="risk-description" class="risk-description">Current risk level: LOW</p>
+                    </div>
+                    <div class="risk-visual">
+                        <div class="risk-emoji">🟢</div>
+                        <div id="risk-percent" class="risk-percent">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Selector -->
+            <div class="date-selector-container">
+                <div class="date-selector-header">
+                    <h3>Meal Tracking</h3>
+                    <div class="date-controls">
+                        <input type="date" id="selected-date" class="date-input">
+                        <span id="today-indicator" class="today-badge">Today</span>
+                    </div>
+                </div>
+
+                <!-- Meal Cards -->
+                <div class="meal-cards-grid">
+                    <div class="meal-card" data-meal="breakfast">
+                        <div class="meal-header">
+                            <div class="meal-info">
+                                <span class="meal-icon">☕</span>
+                                <h4 class="meal-name">Breakfast</h4>
+                            </div>
+                            <span class="meal-status" data-status="pending">Pending</span>
+                        </div>
+                        <p class="time-text">08:00 (expected)</p>
+                        <p class="meal-notes"></p>
+                        <div class="meal-actions">
+                            <button class="action-btn consumed">
+                                <span>✓</span> Consumed
+                            </button>
+                            <button class="action-btn skipped">
+                                <span>×</span> Skipped
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meal-card" data-meal="lunch">
+                        <div class="meal-header">
+                            <div class="meal-info">
+                                <span class="meal-icon">🍽️</span>
+                                <h4 class="meal-name">Lunch</h4>
+                            </div>
+                            <span class="meal-status" data-status="pending">Pending</span>
+                        </div>
+                        <p class="time-text">12:00 (expected)</p>
+                        <p class="meal-notes"></p>
+                        <div class="meal-actions">
+                            <button class="action-btn consumed">
+                                <span>✓</span> Consumed
+                            </button>
+                            <button class="action-btn skipped">
+                                <span>×</span> Skipped
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="meal-card" data-meal="dinner">
+                        <div class="meal-header">
+                            <div class="meal-info">
+                                <span class="meal-icon">🍳</span>
+                                <h4 class="meal-name">Dinner</h4>
+                            </div>
+                            <span class="meal-status" data-status="pending">Pending</span>
+                        </div>
+                        <p class="time-text">18:00 (expected)</p>
+                        <p class="meal-notes"></p>
+                        <div class="meal-actions">
+                            <button class="action-btn consumed">
+                                <span>✓</span> Consumed
+                            </button>
+                            <button class="action-btn skipped">
+                                <span>×</span> Skipped
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Meal Button -->
+                <div class="add-meal-container">
+                    <button id="add-meal-btn" class="add-meal-btn">
+                        <span>+</span> Add Custom Meal
+                    </button>
+                </div>
+            </div>
+
+            <!-- Meal History -->
+            <div id="meal-history" class="meal-history hidden">
+                <h3 class="section-title">Meal History</h3>
+                <div id="history-list" class="history-list"></div>
+            </div>
+
+            <!-- Add Meal Form -->
+            <div id="add-meal-form" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Add Custom Meal</h3>
+                        <button id="close-modal" class="modal-close">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="meal-type">Meal Type</label>
+                            <select id="meal-type" class="form-input">
+                                <option value="breakfast">Breakfast</option>
+                                <option value="lunch">Lunch</option>
+                                <option value="dinner">Dinner</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="meal-time">Time</label>
+                            <input type="time" id="meal-time" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="meal-status">Status</label>
+                            <select id="meal-status" class="form-input">
+                                <option value="consumed">Consumed</option>
+                                <option value="skipped">Skipped</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="meal-notes">Notes (optional)</label>
+                            <textarea id="meal-notes" class="form-input" rows="3" placeholder="Add any notes about this meal..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="cancel-add" class="btn-secondary">Cancel</button>
+                        <button id="save-meal" class="btn-primary">Add Meal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trends Tab -->
+        <div id="trends-tab" class="tab-content">
+            <div class="trends-container">
+                <!-- Weekly Calendar -->
+                <div class="weekly-calendar">
+                    <h3 class="section-title">Weekly Overview</h3>
+                    <div id="calendar-grid" class="calendar-grid"></div>
+                </div>
+
+                <!-- Summary Stats -->
+                <div class="summary-stats">
+                    <div class="stat-card">
+                        <h4>Meals Consumed</h4>
+                        <p id="consumed-count" class="stat-value">0/21</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Meals Skipped</h4>
+                        <p id="skipped-count" class="stat-value">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Success Rate</h4>
+                        <p id="success-rate" class="stat-value">0%</p>
+                    </div>
+                </div>
+
+                <!-- Meal Patterns -->
+                <div class="meal-patterns">
+                    <h3 class="section-title">Meal Patterns</h3>
+                    <div class="patterns-grid">
+                        <div id="breakfast-pattern" class="pattern-card">
+                            <div class="pattern-header">
+                                <h4>☕ Breakfast</h4>
+                                <div class="trend-indicator stable">
+                                    <span class="trend-icon">📊</span>
+                                    <span class="trend-text">stable</span>
+                                </div>
+                            </div>
+                            <div class="pattern-stats">
+                                <div class="stat">
+                                    <span class="stat-label">Average Time</span>
+                                    <span class="stat-value">08:00</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-label">Consistency</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="stat-value">0%</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-label">Skip Rate</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="stat-value">0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="lunch-pattern" class="pattern-card">
+                            <div class="pattern-header">
+                                <h4>🍽️ Lunch</h4>
+                                <div class="trend-indicator stable">
+                                    <span class="trend-icon">📊</span>
+                                    <span class="trend-text">stable</span>
+                                </div>
+                            </div>
+                            <div class="pattern-stats">
+                                <div class="stat">
+                                    <span class="stat-label">Average Time</span>
+                                    <span class="stat-value">12:00</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-label">Consistency</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="stat-value">0%</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-label">Skip Rate</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="stat-value">0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="dinner-pattern" class="pattern-card">
+                            <div class="pattern-header">
+                                <h4>🍳 Dinner</h4>
+                                <div class="trend-indicator stable">
+                                    <span class="trend-icon">📊</span>
+                                    <span class="trend-text">stable</span>
+                                </div>
+                            </div>
+                            <div class="pattern-stats">
+                                <div class="stat">
+                                    <span class="stat-label">Average Time</span>
+                                    <span class="stat-value">18:00</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-label">Consistency</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="stat-value">0%</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-label">Skip Rate</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="stat-value">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="tab-content">
+            <div class="settings-container">
+                <h3 class="section-title">Settings</h3>
+                
+                <!-- Meal Times -->
+                <div class="settings-section">
+                    <h4 class="settings-subtitle">Meal Times</h4>
+                    <div class="settings-grid">
+                        <div class="form-group">
+                            <label for="breakfast-time">Breakfast Time</label>
+                            <input type="time" id="breakfast-time" class="form-input" value="08:00">
+                        </div>
+                        <div class="form-group">
+                            <label for="lunch-time">Lunch Time</label>
+                            <input type="time" id="lunch-time" class="form-input" value="12:00">
+                        </div>
+                        <div class="form-group">
+                            <label for="dinner-time">Dinner Time</label>
+                            <input type="time" id="dinner-time" class="form-input" value="18:00">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert Settings -->
+                <div class="settings-section">
+                    <h4 class="settings-subtitle">Alert Settings</h4>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="alerts-enabled" checked>
+                            <span class="checkbox-custom"></span>
+                            Enable meal alerts
+                        </label>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="form-group">
+                            <label for="alert-advance">Alert advance time (minutes)</label>
+                            <input type="number" id="alert-advance" class="form-input" value="15" min="0" max="120">
+                        </div>
+                        <div class="form-group">
+                            <label for="skip-threshold">Skip threshold (minutes)</label>
+                            <input type="number" id="skip-threshold" class="form-input" value="60" min="0" max="240">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="settings-actions">
+                    <button id="save-settings" class="btn-primary">Save Settings</button>
+                    <button id="reset-settings" class="btn-secondary">Reset to Defaults</button>
+                    <button id="clear-data" class="btn-danger">Clear All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
